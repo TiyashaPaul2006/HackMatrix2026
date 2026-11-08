@@ -80,3 +80,4 @@ backend/.pytest_cache/
 # =====================
 *.log
 logs/
+

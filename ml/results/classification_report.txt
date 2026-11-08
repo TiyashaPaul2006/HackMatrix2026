@@ -1,0 +1,81 @@
+================================================================================
+AI-POWERED WEB THREAT DETECTION - MODEL EVALUATION REPORT
+Generated: 2026-11-08 14:48:38
+================================================================================
+
+1. DATASET OVERVIEW
+-------------------
+Total Dataset Samples: 100,872
+Input Features: 16
+Target Classes: 0 = Legitimate (37,380), 1 = Phishing (63,492)
+Data Split: 70% Train (70,610), 15% Validation (15,131), 15% Testing (15,131)
+Domain Leakage: 6,368 Val URLs (42.09%) and 6,369 Test URLs (42.09%) share domains with Train.
+
+2. RANDOM FOREST BASELINE PERFORMANCE
+--------------------------------------
+Validation Set:
+              precision    recall  f1-score   support
+
+  Legitimate     0.9998    0.9982    0.9990      5607
+    Phishing     0.9990    0.9999    0.9994      9524
+
+    accuracy                         0.9993     15131
+   macro avg     0.9994    0.9991    0.9992     15131
+weighted avg     0.9993    0.9993    0.9993     15131
+
+ROC-AUC: 1.0000 | PR-AUC: 1.0000
+
+Test Set:
+              precision    recall  f1-score   support
+
+  Legitimate     0.9998    0.9995    0.9996      5607
+    Phishing     0.9997    0.9999    0.9998      9524
+
+    accuracy                         0.9997     15131
+   macro avg     0.9998    0.9997    0.9997     15131
+weighted avg     0.9997    0.9997    0.9997     15131
+
+ROC-AUC: 1.0000 | PR-AUC: 1.0000
+False Negative Rate (Missed Phishing): 0.0105% (1 missed)
+False Positive Rate: 0.0535% (3 false alarms)
+
+3. XGBOOST CLASSIFIER PERFORMANCE
+----------------------------------
+Validation Set:
+              precision    recall  f1-score   support
+
+  Legitimate     0.9996    0.9986    0.9991      5607
+    Phishing     0.9992    0.9998    0.9995      9524
+
+    accuracy                         0.9993     15131
+   macro avg     0.9994    0.9992    0.9993     15131
+weighted avg     0.9993    0.9993    0.9993     15131
+
+ROC-AUC: 1.0000 | PR-AUC: 1.0000
+
+Test Set:
+              precision    recall  f1-score   support
+
+  Legitimate     0.9998    0.9998    0.9998      5607
+    Phishing     0.9999    0.9999    0.9999      9524
+
+    accuracy                         0.9999     15131
+   macro avg     0.9999    0.9999    0.9999     15131
+weighted avg     0.9999    0.9999    0.9999     15131
+
+ROC-AUC: 1.0000 | PR-AUC: 1.0000
+False Negative Rate (Missed Phishing): 0.0105% (1 missed)
+False Positive Rate: 0.0178% (1 false alarms)
+
+4. BEST MODEL SELECTION & RATIONALE
+------------------------------------
+Selected Model: XGBoost
+Rationale: Highest overall F1-score (0.9999) and Phishing Recall (0.9999), effectively minimizing catastrophic False Negatives while preserving strong precision (0.9999).
+
+5. TOP 5 PREDICTIVE FEATURES (XGBoost Gain / RF MDI)
+-----------------------------------------------------
+1. path_length (Gain: 0.6124)
+2. https_flag (Gain: 0.1799)
+3. token_count (Gain: 0.1467)
+4. subdomain_count (Gain: 0.0135)
+5. dot_count (Gain: 0.0131)

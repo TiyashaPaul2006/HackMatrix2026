@@ -1,0 +1,71 @@
+{
+  "timestamp": "2026-11-08 14:48:38",
+  "best_model": "XGBoost",
+  "random_forest": {
+    "validation": {
+      "accuracy": 0.999273015663208,
+      "precision": 0.9989510122731564,
+      "recall": 0.999895002099958,
+      "f1_score": 0.9994227842787428,
+      "roc_auc": 0.9999916481071128,
+      "pr_auc": 0.9999949978577352,
+      "specificity": 0.9982165150704476,
+      "false_negative_rate": 0.00010499790004199917,
+      "false_positive_rate": 0.0017834849295523454,
+      "true_negatives": 5597,
+      "false_positives": 10,
+      "false_negatives": 1,
+      "true_positives": 9523
+    },
+    "test": {
+      "accuracy": 0.9997356420593484,
+      "precision": 0.9996850724333404,
+      "recall": 0.999895002099958,
+      "f1_score": 0.9997900262467192,
+      "roc_auc": 0.9999995692970036,
+      "pr_auc": 0.9999997463191789,
+      "specificity": 0.9994649545211343,
+      "false_negative_rate": 0.00010499790004199917,
+      "false_positive_rate": 0.0005350454788657035,
+      "true_negatives": 5604,
+      "false_positives": 3,
+      "false_negatives": 1,
+      "true_positives": 9523
+    },
+    "training_time_seconds": 1.0216009616851807
+  },
+  "xgboost": {
+    "validation": {
+      "accuracy": 0.9993391051483709,
+      "precision": 0.9991605456453305,
+      "recall": 0.999790004199916,
+      "f1_score": 0.9994751758161016,
+      "roc_auc": 0.9999884084715309,
+      "pr_auc": 0.9999930559852918,
+      "specificity": 0.9985732120563581,
+      "false_negative_rate": 0.00020999580008399833,
+      "false_positive_rate": 0.0014267879436418763,
+      "true_negatives": 5599,
+      "false_positives": 8,
+      "false_negatives": 2,
+      "true_positives": 9522
+    },
+    "test": {
+      "accuracy": 0.9998678210296742,
+      "precision": 0.999895002099958,
+      "recall": 0.999895002099958,
+      "f1_score": 0.999895002099958,
+      "roc_auc": 0.9999994569397002,
+      "pr_auc": 0.9999996798505459,
+      "specificity": 0.9998216515070447,
+      "false_negative_rate": 0.00010499790004199917,
+      "false_positive_rate": 0.00017834849295523454,
+      "true_negatives": 5606,
+      "false_positives": 1,
+      "false_negatives": 1,
+      "true_positives": 9523
+    },
+    "training_time_seconds": 2.7265195846557617,
+    "best_iteration": 274
+  }
+}
