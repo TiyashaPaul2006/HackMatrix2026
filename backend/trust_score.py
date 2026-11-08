@@ -139,3 +139,4 @@ def calculate_trust_score(
         },
         "key_findings": key_findings
     }
+

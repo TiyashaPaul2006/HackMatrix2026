@@ -1,7 +1,10 @@
 # =====================
-# Python
+# Python Cache & Bytecode
 # =====================
 __pycache__/
+src/__pycache__/
+ml/src/__pycache__/
+backend/__pycache__/
 *.py[cod]
 *$py.class
 *.so
@@ -11,33 +14,55 @@ dist/
 build/
 .eggs/
 
+# =====================
+# Trained ML Models (Binaries & Archives)
+# =====================
+models/
+models/best_model.pkl
+models/best_model.zip
+models/preprocessing_pipeline.pkl
+models/random_forest_model.pkl
+models/xgboost_model.pkl
+ml/models/
+*.pkl
+*.zip
+*.h5
+*.parquet
+
+# =====================
+# Datasets (Raw, Extracted, and Processed)
+# =====================
+malicious_phish.csv/
+phishing_features.csv
+PhiUSIIL_Phishing_URL_Dataset.csv
+url_features_extracted1.csv
+processed/
+processed/*.csv
+ml/data/
+*.csv
+
+# Exceptions: Allow metrics JSON and report TXT files to be tracked
+!ml/results/*.json
+!ml/results/*.txt
+!results/*.json
+!results/*.txt
+
+# =====================
 # Virtual Environments
+# =====================
 venv/
 env/
 .venv/
 .env/
 
 # =====================
-# Jupyter Notebooks
+# Jupyter Notebooks Checkpoints
 # =====================
 .ipynb_checkpoints/
 *.ipynb~
 
 # =====================
-# Data & Models (Large Files)
-# =====================
-ml/data/raw/
-*.csv
-*.pkl
-*.h5
-*.parquet
-
-# Keep processed data and model metadata (small JSON)
-!ml/results/*.json
-!ml/results/*.txt
-
-# =====================
-# Environment Variables
+# Environment Variables & Secrets
 # =====================
 .env
 .env.local
@@ -54,14 +79,14 @@ ml/data/raw/
 *.swo
 
 # =====================
-# OS Files
+# OS Generated Files
 # =====================
 .DS_Store
 Thumbs.db
 desktop.ini
 
 # =====================
-# Frontend (Node)
+# Frontend (Node.js)
 # =====================
 frontend/node_modules/
 frontend/dist/
@@ -70,14 +95,7 @@ frontend/.next/
 frontend/.cache/
 
 # =====================
-# Backend
-# =====================
-backend/__pycache__/
-backend/.pytest_cache/
-
-# =====================
 # Logs
 # =====================
 *.log
 logs/
-
