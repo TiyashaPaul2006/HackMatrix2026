@@ -1,0 +1,82 @@
+# =====================
+# Python
+# =====================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual Environments
+venv/
+env/
+.venv/
+.env/
+
+# =====================
+# Jupyter Notebooks
+# =====================
+.ipynb_checkpoints/
+*.ipynb~
+
+# =====================
+# Data & Models (Large Files)
+# =====================
+ml/data/raw/
+*.csv
+*.pkl
+*.h5
+*.parquet
+
+# Keep processed data and model metadata (small JSON)
+!ml/results/*.json
+!ml/results/*.txt
+
+# =====================
+# Environment Variables
+# =====================
+.env
+.env.local
+.env.production
+*.env
+
+# =====================
+# IDEs & Editors
+# =====================
+.vscode/
+.idea/
+*.code-workspace
+*.swp
+*.swo
+
+# =====================
+# OS Files
+# =====================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# =====================
+# Frontend (Node)
+# =====================
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.next/
+frontend/.cache/
+
+# =====================
+# Backend
+# =====================
+backend/__pycache__/
+backend/.pytest_cache/
+
+# =====================
+# Logs
+# =====================
+*.log
+logs/
