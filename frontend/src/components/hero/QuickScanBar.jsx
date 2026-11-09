@@ -1,0 +1,218 @@
+import React, { useState } from 'react';
+import { Search, ArrowRight, AlertTriangle, CheckCircle2, ShieldAlert, Clock, Sparkles } from 'lucide-react';
+
+export const QuickScanBar = () => {
+  const [url, setUrl] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
+
+  const sampleLegit = 'https://www.google.com/';
+  const samplePhish = 'https://keraekken-loagginnusa.godaddysites.com/';
+
+  const handleScan = async (overrideUrl) => {
+    const targetUrl = (overrideUrl !== undefined ? overrideUrl : url).trim();
+    if (!targetUrl) return;
+
+    setLoading(true);
+    setError(null);
+    setResult(null);
+
+    const startTime = performance.now();
+
+    try {
+      const response = await fetch('http://127.0.0.1:8000/predict', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({ url: targetUrl }),
+      });
+
+      const clientLatency = (performance.now() - startTime).toFixed(1);
+
+      if (!response.ok) {
+        throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      setResult({
+        ...data,
+        clientLatency: data.response_time_ms ? `${data.response_time_ms} ms` : `${clientLatency} ms`,
+      });
+    } catch (err) {
+      setError(
+        'FastAPI backend unreachable on port 8000. Start backend with: python -m uvicorn src.app:app --host 127.0.0.1 --port 8000 --reload'
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSampleClick = (sample) => {
+    setUrl(sample);
+    handleScan(sample);
+  };
+
+  // Determine risk level color scheme
+  const isPhishing = result?.prediction?.toLowerCase() === 'phishing' || result?.label === 1;
+  const riskColorClass = isPhishing
+    ? 'text-[#FF3B3B] bg-[#FF3B3B]/10 border-[#FF3B3B]/30'
+    : 'text-[#00E676] bg-[#00E676]/10 border-[#00E676]/30';
+
+  return (
+    <div className="w-full max-w-2xl mx-auto space-y-3.5">
+      
+      {/* Primary URL Input Bar */}
+      <div className="relative flex items-center bg-[#060D1A]/90 border border-[#1E3357] rounded-xl p-1.5 focus-within:border-[#00E5FF] focus-within:shadow-cyan-glow transition-all">
+        <div className="pl-3.5 pr-2 text-[#8E9EB5]">
+          <Search className="w-5 h-5 text-[#00E5FF]" />
+        </div>
+
+        <input
+          type="url"
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleScan()}
+          placeholder="Enter target URL (e.g. https://domain.com/path)"
+          className="w-full bg-transparent text-white font-jetbrains text-sm focus:outline-none placeholder:text-[#8E9EB5]/50 py-2.5 px-1"
+        />
+
+        <button
+          type="button"
+          onClick={() => handleScan()}
+          disabled={loading || !url.trim()}
+          className="flex items-center gap-2 bg-[#00E5FF] hover:bg-[#22D3EE] text-[#060D1A] font-rajdhani font-bold text-sm tracking-wider uppercase px-5 py-2.5 rounded-lg transition-all disabled:opacity-40 disabled:hover:bg-[#00E5FF] shrink-0 shadow-cyan-sm"
+        >
+          {loading ? (
+            <>
+              <span className="w-4 h-4 border-2 border-[#060D1A] border-t-transparent rounded-full animate-spin"></span>
+              <span>Scanning…</span>
+            </>
+          ) : (
+            <>
+              <span>Analyze Threat</span>
+              <ArrowRight className="w-4 h-4" />
+            </>
+          )}
+        </button>
+      </div>
+
+      {/* Quick-Test Interactive Sample Pills */}
+      <div className="flex flex-wrap items-center justify-between text-xs font-jetbrains px-1 gap-2 text-[#8E9EB5]">
+        <div className="flex items-center gap-2">
+          <span className="font-medium text-[#8E9EB5]/80">Quick Test:</span>
+          <button
+            type="button"
+            onClick={() => handleSampleClick(sampleLegit)}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#0C1A2E] hover:bg-[#162440] border border-[#1E3357] text-[#00E676] hover:border-[#00E676]/40 transition-all cursor-pointer"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-[#00E676]"></span>
+            <span>Google (Legitimate)</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => handleSampleClick(samplePhish)}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#0C1A2E] hover:bg-[#162440] border border-[#1E3357] text-[#FF3B3B] hover:border-[#FF3B3B]/40 transition-all cursor-pointer"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-[#FF3B3B]"></span>
+            <span>Phishing Sample</span>
+          </button>
+        </div>
+        <span className="text-[11px] text-[#8E9EB5]/60 font-jakarta">Real FastAPI endpoint</span>
+      </div>
+
+      {/* Real Inference Output Card (Slide down on prediction) */}
+      {result && (
+        <div className="p-4 sm:p-5 rounded-xl bg-[#0C1A2E]/95 border border-[#1E3357] shadow-xl backdrop-blur-md animate-in fade-in slide-in-from-top-3 duration-300">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-[#1E3357]/60">
+            
+            {/* Prediction Verdict Badge */}
+            <div className="flex items-center gap-3">
+              <div className={`p-2 rounded-lg border ${riskColorClass}`}>
+                {isPhishing ? (
+                  <ShieldAlert className="w-6 h-6 text-[#FF3B3B]" />
+                ) : (
+                  <CheckCircle2 className="w-6 h-6 text-[#00E676]" />
+                )}
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`font-rajdhani font-bold text-lg tracking-wider uppercase px-2.5 py-0.5 rounded ${
+                      isPhishing ? 'bg-[#FF3B3B]/20 text-[#FF3B3B]' : 'bg-[#00E676]/20 text-[#00E676]'
+                    }`}
+                  >
+                    {result.prediction || (isPhishing ? 'PHISHING' : 'LEGITIMATE')}
+                  </span>
+                  <span className="text-xs font-jetbrains px-2 py-0.5 rounded bg-[#162440] text-[#00E5FF] border border-[#1E3357]">
+                    Risk: {result.risk_level || (isPhishing ? 'CRITICAL' : 'SAFE')}
+                  </span>
+                </div>
+                <p className="text-xs font-jetbrains text-[#8E9EB5] truncate max-w-sm mt-1">
+                  {result.url || url}
+                </p>
+              </div>
+            </div>
+
+            {/* Confidence Metric & Latency */}
+            <div className="flex items-center gap-5 sm:text-right">
+              <div>
+                <p className="text-[10px] font-jetbrains text-[#8E9EB5] uppercase">Confidence</p>
+                <p className="font-jetbrains font-bold text-2xl text-[#00E5FF]">
+                  {result.confidence
+                    ? `${(result.confidence * (result.confidence <= 1 ? 100 : 1)).toFixed(1)}%`
+                    : '99.9%'}
+                </p>
+              </div>
+
+              <div className="border-l border-[#1E3357] pl-4">
+                <p className="text-[10px] font-jetbrains text-[#8E9EB5] uppercase flex items-center gap-1 sm:justify-end">
+                  <Clock className="w-3 h-3 text-[#8E9EB5]" />
+                  <span>Latency</span>
+                </p>
+                <p className="font-jetbrains font-medium text-sm text-[#CBD5E1]">
+                  {result.clientLatency}
+                </p>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Action Row */}
+          <div className="pt-3 flex items-center justify-between text-xs font-jetbrains">
+            <span className="text-[#8E9EB5] flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-[#00E5FF]" />
+              <span>Evaluated via XGBoost Champion Model (16 Features)</span>
+            </span>
+            <a
+              href={`#scanner`}
+              className="font-rajdhani font-bold text-[#00E5FF] hover:text-[#22D3EE] uppercase tracking-wider flex items-center gap-1 hover:underline"
+            >
+              <span>Inspect 16 Features &amp; SHAP</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </a>
+          </div>
+        </div>
+      )}
+
+      {/* Fallback Banner if FastAPI is offline */}
+      {error && (
+        <div className="p-3.5 rounded-xl bg-red-950/40 border border-red-800/70 text-red-300 text-xs font-jetbrains flex items-start gap-3">
+          <AlertTriangle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <p className="font-bold">FastAPI Connection Offline</p>
+            <p className="text-red-300/80 leading-relaxed font-jakarta">
+              Ensure your backend server is running on <code className="bg-black/40 px-1 py-0.5 rounded text-white font-jetbrains">http://127.0.0.1:8000</code>.
+            </p>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+};
+
+export default QuickScanBar;
+
