@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Search, ArrowRight, AlertTriangle, CheckCircle2, ShieldAlert, Clock, Sparkles } from 'lucide-react';
+import StarBorder from '../common/StarBorder';
 
 export const QuickScanBar = () => {
   const [url, setUrl] = useState('');
@@ -79,11 +80,26 @@ export const QuickScanBar = () => {
           className="w-full bg-transparent text-white font-jetbrains text-sm focus:outline-none placeholder:text-[#8E9EB5]/50 py-2.5 px-1"
         />
 
-        <button
+        <StarBorder
+          as="button"
           type="button"
           onClick={() => handleScan()}
           disabled={loading || !url.trim()}
-          className="flex items-center gap-2 bg-[#00E5FF] hover:bg-[#22D3EE] text-[#060D1A] font-rajdhani font-bold text-sm tracking-wider uppercase px-5 py-2.5 rounded-lg transition-all disabled:opacity-40 disabled:hover:bg-[#00E5FF] shrink-0 shadow-cyan-sm"
+          color="#06B6D4"
+          trailColor="#06B6D4"
+          duration={4}
+          stars={2}
+          trailLength={0.35}
+          thickness={1.5}
+          radius={8}
+          glow={0.6}
+          sparkle={true}
+          clickPulse={true}
+          theme="dark"
+          backgroundColor="#06B6D4"
+          textColor="#060D1A"
+          borderColor="rgba(6, 182, 212, 0.4)"
+          className="flex items-center gap-2 font-rajdhani font-bold text-sm tracking-wider uppercase !px-5 !py-2.5 rounded-lg transition-all disabled:opacity-40 shrink-0 shadow-[0_0_16px_rgba(6,182,212,0.35)] cursor-pointer"
         >
           {loading ? (
             <>
@@ -96,29 +112,57 @@ export const QuickScanBar = () => {
               <ArrowRight className="w-4 h-4" />
             </>
           )}
-        </button>
+        </StarBorder>
       </div>
 
       {/* Quick-Test Interactive Sample Pills */}
       <div className="flex flex-wrap items-center justify-between text-xs font-jetbrains px-1 gap-2 text-[#8E9EB5]">
         <div className="flex items-center gap-2">
           <span className="font-medium text-[#8E9EB5]/80">Quick Test:</span>
-          <button
+          <StarBorder
+            as="button"
             type="button"
             onClick={() => handleSampleClick(sampleLegit)}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#0C1A2E] hover:bg-[#162440] border border-[#1E3357] text-[#00E676] hover:border-[#00E676]/40 transition-all cursor-pointer"
+            color="#00E676"
+            trailColor="#00E676"
+            duration={5.5}
+            stars={2}
+            trailLength={0.3}
+            thickness={1.5}
+            radius={6}
+            glow={0.5}
+            sparkle={true}
+            theme="dark"
+            backgroundColor="#0C1A2E"
+            textColor="#00E676"
+            borderColor="rgba(0, 230, 118, 0.3)"
+            className="flex items-center gap-1.5 !px-2.5 !py-1 text-xs cursor-pointer"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-[#00E676]"></span>
             <span>Google (Legitimate)</span>
-          </button>
-          <button
+          </StarBorder>
+          <StarBorder
+            as="button"
             type="button"
             onClick={() => handleSampleClick(samplePhish)}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#0C1A2E] hover:bg-[#162440] border border-[#1E3357] text-[#FF3B3B] hover:border-[#FF3B3B]/40 transition-all cursor-pointer"
+            color="#FF3B3B"
+            trailColor="#FF3B3B"
+            duration={5}
+            stars={2}
+            trailLength={0.3}
+            thickness={1.5}
+            radius={6}
+            glow={0.6}
+            sparkle={true}
+            theme="dark"
+            backgroundColor="#0C1A2E"
+            textColor="#FF3B3B"
+            borderColor="rgba(255, 59, 59, 0.3)"
+            className="flex items-center gap-1.5 !px-2.5 !py-1 text-xs cursor-pointer"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-[#FF3B3B]"></span>
             <span>Phishing Sample</span>
-          </button>
+          </StarBorder>
         </div>
         <span className="text-[11px] text-[#8E9EB5]/60 font-jakarta">Real FastAPI endpoint</span>
       </div>

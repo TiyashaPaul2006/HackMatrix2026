@@ -3,6 +3,7 @@ import PacketFlowBackground from './PacketFlowBackground';
 import ThreatContourBackground from './ThreatContourBackground';
 import CyberRadarBackground from './CyberRadarBackground';
 import ChromaticVoidBackground from './ChromaticVoidBackground';
+import StarBorder from '../common/StarBorder';
 
 const MODES = [
   { id: 'radar', label: '🛡️ Radar', component: CyberRadarBackground },
@@ -25,18 +26,26 @@ export const BackgroundController = () => {
           Theme
         </span>
         {MODES.map((btn) => (
-          <button
+          <StarBorder
             key={btn.id}
+            as="button"
             type="button"
             onClick={() => setActiveMode(btn.id)}
-            className={`px-3 py-1 rounded-full text-xs font-rajdhani font-bold tracking-wider transition-all ${
-              activeMode === btn.id
-                ? 'bg-[#00E5FF] text-[#060D1A] shadow-cyan-sm'
-                : 'text-[#8E9EB5] hover:text-white hover:bg-[#162440]'
-            }`}
+            color={activeMode === btn.id ? "#00E5FF" : "#8E9EB5"}
+            trailColor={activeMode === btn.id ? "#00E5FF" : "#8E9EB5"}
+            duration={activeMode === btn.id ? 4 : 8}
+            stars={activeMode === btn.id ? 2 : 1}
+            glow={activeMode === btn.id ? 0.6 : 0.2}
+            sparkle={activeMode === btn.id}
+            radius={999}
+            theme="dark"
+            backgroundColor={activeMode === btn.id ? "rgba(0, 229, 255, 0.20)" : "transparent"}
+            textColor={activeMode === btn.id ? "#00E5FF" : "#8E9EB5"}
+            borderColor={activeMode === btn.id ? "rgba(0, 229, 255, 0.4)" : "rgba(142, 158, 181, 0.2)"}
+            className="!px-3 !py-1 text-xs font-rajdhani font-bold tracking-wider cursor-pointer"
           >
             {btn.label}
-          </button>
+          </StarBorder>
         ))}
       </div>
     </>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { ShieldCheck, ArrowUpRight } from 'lucide-react';
+import StarBorder from '../common/StarBorder';
 
 export const Navbar = () => {
   return (
@@ -47,13 +48,29 @@ export const Navbar = () => {
 
       {/* Header Actions (Right) */}
       <div className="flex items-center">
-        <a
+        <StarBorder
+          as="a"
           href="#scanner"
-          className="bg-[#06B6D4] hover:bg-[#0891B2] text-white text-xs font-ui font-semibold px-4 py-2 rounded-md flex items-center gap-1.5 shadow-[0_0_16px_rgba(6,182,212,0.4)] hover:shadow-[0_0_24px_rgba(6,182,212,0.6)] transition-all"
+          color="#06b6d4"
+          trailColor="#06b6d4"
+          duration={5}
+          direction="clockwise"
+          stars={2}
+          trailLength={0.35}
+          thickness={1.5}
+          radius={10}
+          glow={0.6}
+          sparkle={true}
+          clickPulse={true}
+          theme="dark"
+          backgroundColor="rgba(6, 32, 44, 0.65)"
+          textColor="#F8FAFC"
+          borderColor="rgba(6, 182, 212, 0.35)"
+          className="text-xs font-ui font-semibold !px-4 !py-2 flex items-center gap-1.5 shadow-[0_0_16px_rgba(6,182,212,0.25)] hover:shadow-[0_0_24px_rgba(6,182,212,0.5)] transition-all cursor-pointer"
         >
           <span>Open scanner</span>
-          <ArrowUpRight className="w-3.5 h-3.5" />
-        </a>
+          <ArrowUpRight className="w-3.5 h-3.5 text-[#06B6D4]" />
+        </StarBorder>
       </div>
     </header>
   );

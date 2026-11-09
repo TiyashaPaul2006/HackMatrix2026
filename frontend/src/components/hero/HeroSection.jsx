@@ -94,7 +94,7 @@ export const HeroSection = () => {
       </p>
 
       {/* 3. Target URL CurvedInput Command Box */}
-      <div className="text-left max-w-2xl mx-auto mb-6">
+      <div className="text-left max-w-2xl mx-auto mb-10">
         <CurvedInput
           topLabel="Target URL"
           bottomLeftText="Enter a complete URL to request a model prediction."
