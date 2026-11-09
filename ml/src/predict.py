@@ -11,12 +11,23 @@ import pandas as pd
 import numpy as np
 
 try:
-    from feature_extraction import extract_features_from_url, FEATURE_NAMES
+    from ml.src.feature_extraction import extract_features_from_url, FEATURE_NAMES
 except ImportError:
-    from src.feature_extraction import extract_features_from_url, FEATURE_NAMES
+    try:
+        from feature_extraction import extract_features_from_url, FEATURE_NAMES
+    except ImportError:
+        from src.feature_extraction import extract_features_from_url, FEATURE_NAMES
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MODELS_DIR = os.path.join(BASE_DIR, 'models')
+REPO_DIR = os.path.dirname(BASE_DIR)
+
+CANDIDATE_MODEL_DIRS = [
+    os.path.join(REPO_DIR, 'models'),
+    os.path.join(BASE_DIR, 'models'),
+    r'D:\AI-Phishing-Detection\Dataset\models'
+]
+
+MODELS_DIR = next((d for d in CANDIDATE_MODEL_DIRS if os.path.isdir(d) and os.path.exists(os.path.join(d, 'best_model.pkl'))), os.path.join(REPO_DIR, 'models'))
 
 BEST_MODEL_PATH = os.path.join(MODELS_DIR, 'best_model.pkl')
 IMPUTER_PATH = os.path.join(MODELS_DIR, 'preprocessing_pipeline.pkl')

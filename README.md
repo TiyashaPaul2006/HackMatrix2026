@@ -178,10 +178,13 @@ Then open:
 
 ### API Endpoints
 
-- `POST /predict` — classify one URL.
+- `POST /scan` — **Comprehensive Digital Trust Scan**: combines ML classification, SSL/TLS certificate validation, security header audit, and 0–100 Trust Score.
+- `POST /predict` — real-time ML-only threat classification (sub-5ms).
 - `POST /predict/batch` — classify a batch of URLs.
+- `POST /ssl` — cryptographic SSL/TLS certificate validation and risk audit.
+- `POST /headers` — passive HTTP security header posture assessment.
 
-Example request body for `POST /predict`:
+Example request body for `POST /scan` or `POST /predict`:
 
 ```json
 {
@@ -198,6 +201,14 @@ Example request body for `POST /predict/batch`:
     "https://example.com/"
   ]
 }
+```
+
+### Run Automated Tests
+
+Execute the automated test suite for the SSL/TLS engine (18 test cases covering expiry, hostname verification, SSRF blocking, timeouts, and TLS protocols):
+
+```bash
+python -m pytest certificates/test_ssl_validator.py -v
 ```
 
 ### Reproduce Training and Benchmark Evaluation
@@ -272,7 +283,13 @@ HackMatrix2026/
 │       ├── phiusiil_confusion_matrix.png
 │       ├── classification_report.txt
 │       └── evaluation_metrics.json
-├── certificates/                           # SSL/TLS validation outputs
+├── certificates/                           # Cryptographic SSL/TLS validation engine
+│   ├── __init__.py
+│   ├── ssl_validator.py
+│   └── test_ssl_validator.py
+├── security/                               # Passive Web security assessments
+│   ├── __init__.py
+│   └── security_headers.py
 ├── docs/                                   # Project documentation & images
 ├── README.md
 ├── requirements.txt
@@ -283,6 +300,14 @@ HackMatrix2026/
 
 ## Current Implementation Status
 
-- **Implemented/reported:** dataset analysis and preparation, 16-feature URL extraction, Random Forest and XGBoost training, evaluation outputs, SHAP analysis, model serialization, and FastAPI prediction endpoints.
-- **Further integration/development:** React frontend, unified digital-trust dashboard, and complete integration of SSL/TLS and security-header assessments into a combined trust score.
-- **Before submission:** add the actual demo URL, application screenshot, exact track name, and accurate AI/template disclosures.
+- **Implemented & Tested:**
+  - 16-feature real-time URL extraction pipeline.
+  - Baseline Random Forest and champion XGBoost models with 0.0105% False Negative Rate.
+  - Zero-leakage group-aware domain split validation (99.96% accuracy, 99.99% recall).
+  - Cross-dataset benchmark on PhiUSIIL (ROC-AUC: 0.9980, PR-AUC: 0.9986).
+  - Complete SSL/TLS Certificate Validation Engine (`certificates/ssl_validator.py`) with SSRF defense and 18/18 passing pytest test suite.
+  - Automated Web Security Assessment Engine (`security/security_headers.py`).
+  - Calibrated 0–100 Digital Trust Scoring Engine (`backend/trust_score.py`).
+  - FastAPI production orchestration with endpoints `/predict`, `/predict/batch`, `/ssl`, `/headers`, and `/scan`.
+- **Next Phase:** React frontend dashboard integration.
+- **Before submission:** Add live demo URL, application screenshot, exact track name.

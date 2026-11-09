@@ -22,6 +22,7 @@ jupyter>=1.1.0
 ipykernel>=7.4.0
 nbformat>=5.11.0
 
-# Utilities
+# Utilities & Testing
 scipy>=1.18.0
+pytest>=9.0.0
 

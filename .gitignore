@@ -48,6 +48,12 @@ ml/data/
 !results/*.txt
 
 # =====================
+# Testing & Pytest Cache
+# =====================
+.pytest_cache/
+*.pytest_cache/
+
+# =====================
 # Virtual Environments
 # =====================
 venv/
