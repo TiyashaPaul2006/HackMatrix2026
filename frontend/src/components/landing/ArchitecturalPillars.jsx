@@ -142,12 +142,12 @@ export const ArchitecturalPillars = () => {
               </h3>
 
               <p className="font-ui text-xs text-[#FDE68A] leading-relaxed mb-6 font-normal drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">
-                Planned complementary checks cover SSL/TLS certificate properties and HTTP response headers such as HSTS, CSP and X-Frame-Options.
+                Active cryptographic checks inspect SSL/TLS certificate validity, expiry, SANs, and passive HTTP response headers (HSTS, CSP, X-Frame-Options).
               </p>
             </div>
 
             <div className="pt-4 border-t border-[#F59E0B]/30 text-[10px] font-mono font-medium text-[#FBBF24] uppercase tracking-wider drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]">
-              SCOPE Certificate &amp; headers • STATUS integration in progress
+              SCOPE Certificate &amp; headers • STATUS ACTIVE &amp; VERIFIED
             </div>
           </div>
         </HoloCard>

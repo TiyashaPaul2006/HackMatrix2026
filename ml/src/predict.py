@@ -11,6 +11,11 @@ import pandas as pd
 import numpy as np
 
 try:
+    import shap
+except ImportError:
+    shap = None
+
+try:
     from ml.src.feature_extraction import extract_features_from_url, FEATURE_NAMES
 except ImportError:
     try:
@@ -22,12 +27,13 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REPO_DIR = os.path.dirname(BASE_DIR)
 
 CANDIDATE_MODEL_DIRS = [
-    os.path.join(REPO_DIR, 'models'),
     os.path.join(BASE_DIR, 'models'),
+    os.path.join(REPO_DIR, 'ml', 'models'),
+    os.path.join(REPO_DIR, 'models'),
     r'D:\AI-Phishing-Detection\Dataset\models'
 ]
 
-MODELS_DIR = next((d for d in CANDIDATE_MODEL_DIRS if os.path.isdir(d) and os.path.exists(os.path.join(d, 'best_model.pkl'))), os.path.join(REPO_DIR, 'models'))
+MODELS_DIR = next((d for d in CANDIDATE_MODEL_DIRS if os.path.isdir(d) and os.path.exists(os.path.join(d, 'best_model.pkl'))), os.path.join(REPO_DIR, 'ml', 'models'))
 
 BEST_MODEL_PATH = os.path.join(MODELS_DIR, 'best_model.pkl')
 IMPUTER_PATH = os.path.join(MODELS_DIR, 'preprocessing_pipeline.pkl')
@@ -43,6 +49,13 @@ class PhishingDetector:
         with open(METADATA_PATH, 'r') as f:
             self.metadata = json.load(f)
         self.feature_names = self.metadata.get('feature_names', FEATURE_NAMES)
+
+        self.explainer = None
+        if shap is not None:
+            try:
+                self.explainer = shap.TreeExplainer(self.model)
+            except Exception as e:
+                self.explainer = None
 
     def predict_url(self, raw_url: str) -> dict:
         """
@@ -91,6 +104,25 @@ class PhishingDetector:
         if features_dict['has_hyphen_in_domain'] == 1:
             risk_factors.append("Domain contains hyphens, commonly observed in brand-spoofing domains.")
 
+        # SHAP local feature attribution
+        shap_explanation = []
+        if self.explainer is not None:
+            try:
+                sv = self.explainer(df_imputed)
+                shap_vals = sv.values[0]
+                for feat, raw_val, s_val in zip(self.feature_names, df_feat.iloc[0], shap_vals):
+                    s_val_flt = round(float(s_val), 4)
+                    shap_explanation.append({
+                        "feature": feat,
+                        "value": float(raw_val) if raw_val is not None and not np.isnan(raw_val) else 0.0,
+                        "shap_value": s_val_flt,
+                        "direction": "Phishing" if s_val_flt > 0 else "Legitimate",
+                        "magnitude": round(abs(s_val_flt), 4)
+                    })
+                shap_explanation.sort(key=lambda x: x["magnitude"], reverse=True)
+            except Exception:
+                shap_explanation = []
+
         return {
             'url': raw_url,
             'prediction': 'Phishing' if pred_label == 1 else 'Legitimate',
@@ -100,7 +132,8 @@ class PhishingDetector:
             'legitimate_probability': round(prob_legit, 4),
             'risk_level': risk_level,
             'detected_risk_factors': risk_factors,
-            'extracted_features': features_dict
+            'extracted_features': features_dict,
+            'shap_explanation': shap_explanation
         }
 
 

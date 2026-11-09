@@ -372,3 +372,4 @@ def test_18_consistent_response_structure():
         assert isinstance(resp["is_valid"], bool)
         assert isinstance(resp["risks_detected"], list)
         assert 0 <= resp["trust_points"] <= 25
+

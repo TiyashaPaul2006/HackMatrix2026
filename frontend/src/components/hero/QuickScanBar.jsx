@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Search, ArrowRight, AlertTriangle, CheckCircle2, ShieldAlert, Clock, Sparkles } from 'lucide-react';
+import { Search, ArrowRight, AlertTriangle, CheckCircle2, ShieldAlert, Clock, Sparkles, Lock, ShieldCheck } from 'lucide-react';
 import StarBorder from '../common/StarBorder';
+import { scanUrl } from '../../services/api';
 
 export const QuickScanBar = () => {
   const [url, setUrl] = useState('');
@@ -19,33 +20,11 @@ export const QuickScanBar = () => {
     setError(null);
     setResult(null);
 
-    const startTime = performance.now();
-
     try {
-      const response = await fetch('http://127.0.0.1:8000/predict', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify({ url: targetUrl }),
-      });
-
-      const clientLatency = (performance.now() - startTime).toFixed(1);
-
-      if (!response.ok) {
-        throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      setResult({
-        ...data,
-        clientLatency: data.response_time_ms ? `${data.response_time_ms} ms` : `${clientLatency} ms`,
-      });
+      const data = await scanUrl(targetUrl);
+      setResult(data);
     } catch (err) {
-      setError(
-        'FastAPI backend unreachable on port 8000. Start backend with: python -m uvicorn src.app:app --host 127.0.0.1 --port 8000 --reload'
-      );
+      setError(err.message || 'FastAPI backend unreachable on port 8000.');
     } finally {
       setLoading(false);
     }
@@ -57,7 +36,12 @@ export const QuickScanBar = () => {
   };
 
   // Determine risk level color scheme
-  const isPhishing = result?.prediction?.toLowerCase() === 'phishing' || result?.label === 1;
+  const isPhishing =
+    result?.ml_threat_detection?.prediction?.toLowerCase() === 'phishing' ||
+    result?.prediction?.toLowerCase() === 'phishing' ||
+    result?.label === 1 ||
+    result?.verdict === 'DANGEROUS';
+
   const riskColorClass = isPhishing
     ? 'text-[#FF3B3B] bg-[#FF3B3B]/10 border-[#FF3B3B]/30'
     : 'text-[#00E676] bg-[#00E676]/10 border-[#00E676]/30';
@@ -188,10 +172,10 @@ export const QuickScanBar = () => {
                       isPhishing ? 'bg-[#FF3B3B]/20 text-[#FF3B3B]' : 'bg-[#00E676]/20 text-[#00E676]'
                     }`}
                   >
-                    {result.prediction || (isPhishing ? 'PHISHING' : 'LEGITIMATE')}
+                    {result.verdict || result.prediction || (isPhishing ? 'DANGEROUS' : 'TRUSTED')}
                   </span>
                   <span className="text-xs font-jetbrains px-2 py-0.5 rounded bg-[#162440] text-[#00E5FF] border border-[#1E3357]">
-                    Risk: {result.risk_level || (isPhishing ? 'CRITICAL' : 'SAFE')}
+                    Risk: {result.risk_level || (isPhishing ? 'CRITICAL' : 'LOW')}
                   </span>
                 </div>
                 <p className="text-xs font-jetbrains text-[#8E9EB5] truncate max-w-sm mt-1">
@@ -200,14 +184,12 @@ export const QuickScanBar = () => {
               </div>
             </div>
 
-            {/* Confidence Metric & Latency */}
+            {/* Trust Score & Latency */}
             <div className="flex items-center gap-5 sm:text-right">
               <div>
-                <p className="text-[10px] font-jetbrains text-[#8E9EB5] uppercase">Confidence</p>
+                <p className="text-[10px] font-jetbrains text-[#8E9EB5] uppercase">Trust Score</p>
                 <p className="font-jetbrains font-bold text-2xl text-[#00E5FF]">
-                  {result.confidence
-                    ? `${(result.confidence * (result.confidence <= 1 ? 100 : 1)).toFixed(1)}%`
-                    : '99.9%'}
+                  {result.trust_score !== undefined ? `${Math.round(result.trust_score)}/100` : `${(result.confidence * 100).toFixed(0)}%`}
                 </p>
               </div>
 
@@ -217,7 +199,7 @@ export const QuickScanBar = () => {
                   <span>Latency</span>
                 </p>
                 <p className="font-jetbrains font-medium text-sm text-[#CBD5E1]">
-                  {result.clientLatency}
+                  {result.clientLatency || `${result.scan_time_ms} ms`}
                 </p>
               </div>
             </div>
@@ -228,13 +210,13 @@ export const QuickScanBar = () => {
           <div className="pt-3 flex items-center justify-between text-xs font-jetbrains">
             <span className="text-[#8E9EB5] flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-[#00E5FF]" />
-              <span>Evaluated via XGBoost Champion Model (16 Features)</span>
+              <span>Full Trust Engine: XGBoost + SSL/TLS + Security Headers</span>
             </span>
             <a
-              href={`#scanner`}
+              href="#scanner"
               className="font-rajdhani font-bold text-[#00E5FF] hover:text-[#22D3EE] uppercase tracking-wider flex items-center gap-1 hover:underline"
             >
-              <span>Inspect 16 Features &amp; SHAP</span>
+              <span>Inspect Full Assessment</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </a>
           </div>
@@ -247,9 +229,7 @@ export const QuickScanBar = () => {
           <AlertTriangle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
           <div className="space-y-1">
             <p className="font-bold">FastAPI Connection Offline</p>
-            <p className="text-red-300/80 leading-relaxed font-jakarta">
-              Ensure your backend server is running on <code className="bg-black/40 px-1 py-0.5 rounded text-white font-jetbrains">http://127.0.0.1:8000</code>.
-            </p>
+            <p className="text-red-300/80 leading-relaxed font-jakarta">{error}</p>
           </div>
         </div>
       )}
@@ -259,4 +239,3 @@ export const QuickScanBar = () => {
 };
 
 export default QuickScanBar;
-

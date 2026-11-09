@@ -1,0 +1,66 @@
+{
+  "model_name": "XGBoost",
+  "created_at": "2026-11-08 14:48:38",
+  "feature_names": [
+    "url_length",
+    "has_ip_address",
+    "dot_count",
+    "https_flag",
+    "url_entropy",
+    "token_count",
+    "subdomain_count",
+    "query_param_count",
+    "tld_length",
+    "path_length",
+    "has_hyphen_in_domain",
+    "number_of_digits",
+    "tld_popularity",
+    "suspicious_file_extension",
+    "domain_name_length",
+    "percentage_numeric_chars"
+  ],
+  "feature_count": 16,
+  "label_mapping": {
+    "0": "Legitimate",
+    "1": "Phishing"
+  },
+  "imputer_statistics": {
+    "url_length": 31.0,
+    "has_ip_address": 0.0,
+    "dot_count": 3.0,
+    "https_flag": 0.0,
+    "url_entropy": 3.937444877,
+    "token_count": 7.0,
+    "subdomain_count": 2.0,
+    "query_param_count": 1.0,
+    "tld_length": 3.0,
+    "path_length": 2.0,
+    "has_hyphen_in_domain": 0.0,
+    "number_of_digits": 10.0,
+    "tld_popularity": 0.0,
+    "suspicious_file_extension": 0.0,
+    "domain_name_length": 3.0,
+    "percentage_numeric_chars": 19.64285714
+  },
+  "test_metrics": {
+    "accuracy": 0.9998678210296742,
+    "precision": 0.999895002099958,
+    "recall": 0.999895002099958,
+    "f1_score": 0.999895002099958,
+    "roc_auc": 0.9999994569397002,
+    "pr_auc": 0.9999996798505459,
+    "specificity": 0.9998216515070447,
+    "false_negative_rate": 0.00010499790004199917,
+    "false_positive_rate": 0.00017834849295523454,
+    "true_negatives": 5606,
+    "false_positives": 1,
+    "false_negatives": 1,
+    "true_positives": 9523
+  },
+  "training_config": {
+    "train_samples": 70610,
+    "val_samples": 15131,
+    "test_samples": 15131,
+    "random_state": 42
+  }
+}

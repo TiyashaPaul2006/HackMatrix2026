@@ -31,6 +31,8 @@ def test_02_predict_legitimate_url(client):
     assert data["prediction"] == "Legitimate"
     assert data["label"] == 0
     assert data["confidence_score"] > 90.0
+    assert "shap_explanation" in data
+    assert len(data["shap_explanation"]) == 16
 
 
 def test_03_predict_phishing_url(client):
@@ -40,6 +42,8 @@ def test_03_predict_phishing_url(client):
     assert data["prediction"] == "Phishing"
     assert data["label"] == 1
     assert data["confidence_score"] > 90.0
+    assert "shap_explanation" in data
+    assert len(data["shap_explanation"]) == 16
 
 
 def test_04_ssl_endpoint_validation(client):
@@ -95,3 +99,13 @@ def test_09_batch_prediction_endpoint(client):
     assert data["total_scanned"] == 2
     assert data["phishing_count"] >= 1
     assert data["legitimate_count"] >= 1
+
+
+def test_10_headers_ssrf_blocked(client):
+    response = client.post("/headers", json={"url": "http://127.0.0.1:8000"})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "BLOCKED"
+    assert "SSRF" in data["error_message"]
+
+

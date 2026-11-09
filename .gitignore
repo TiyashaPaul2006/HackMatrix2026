@@ -17,17 +17,17 @@ build/
 # =====================
 # Trained ML Models (Binaries & Archives)
 # =====================
-models/
-models/best_model.pkl
-models/best_model.zip
-models/preprocessing_pipeline.pkl
-models/random_forest_model.pkl
-models/xgboost_model.pkl
-ml/models/
-*.pkl
+/models/
+/ml/models/*
+!/ml/models/best_model.pkl
+!/ml/models/preprocessing_pipeline.pkl
+!/ml/models/feature_metadata.json
 *.zip
 *.h5
 *.parquet
+*.pkl
+!/ml/models/best_model.pkl
+!/ml/models/preprocessing_pipeline.pkl
 
 # =====================
 # Datasets (Raw, Extracted, and Processed)

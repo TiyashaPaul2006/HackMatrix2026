@@ -1,57 +1,61 @@
 import React, { useState } from 'react';
-import { ArrowRight, AlertTriangle, CheckCircle2, ShieldAlert } from 'lucide-react';
+import { ArrowRight, AlertTriangle, CheckCircle2, ShieldAlert, Sparkles, Shield, Cpu, RefreshCw } from 'lucide-react';
 import RotatingText from '../common/RotatingText';
 import CurvedInput from '../common/CurvedInput';
 import SpotlightCard from '../common/SpotlightCard';
+import StarBorder from '../common/StarBorder';
+import FullScanResults from '../scanner/FullScanResults';
+import { scanUrl, predictUrl } from '../../services/api';
 
 export const HeroSection = () => {
   const [targetUrl, setTargetUrl] = useState('');
+  const [scanMode, setScanMode] = useState('full'); // 'full' (Trust Scan) or 'quick' (ML only)
   const [loading, setLoading] = useState(false);
   const [verdict, setVerdict] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
 
-  const executeScan = async (urlOverride) => {
+  const sampleLegit = 'https://www.google.com/';
+  const samplePhish = 'https://keraekken-loagginnusa.godaddysites.com/';
+
+  const executeScan = async (urlOverride, forcedMode) => {
     const finalUrl = (urlOverride !== undefined ? urlOverride : targetUrl).trim();
     if (!finalUrl) return;
+
+    const activeMode = forcedMode || scanMode;
 
     setLoading(true);
     setErrorMsg(null);
     setVerdict(null);
 
-    const startTime = performance.now();
-
     try {
-      const response = await fetch('http://127.0.0.1:8000/predict', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify({ url: finalUrl }),
-      });
-
-      const clientLatency = (performance.now() - startTime).toFixed(1);
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      let data;
+      if (activeMode === 'full') {
+        data = await scanUrl(finalUrl);
+      } else {
+        data = await predictUrl(finalUrl);
       }
 
-      const data = await response.json();
       setVerdict({
         ...data,
         targetUrl: finalUrl,
-        clientLatency: data.response_time_ms ? `${data.response_time_ms} ms` : `${clientLatency} ms`,
+        mode: activeMode,
       });
     } catch (err) {
-      setErrorMsg(
-        'FastAPI service unreachable at http://127.0.0.1:8000. Start backend with `python -m uvicorn src.app:app --host 127.0.0.1 --port 8000 --reload`'
-      );
+      setErrorMsg(err.message || 'An unexpected error occurred during threat scanning.');
     } finally {
       setLoading(false);
     }
   };
 
-  const isPhishing = verdict?.prediction?.toLowerCase() === 'phishing' || verdict?.label === 1;
+  const handleSampleClick = (sample) => {
+    setTargetUrl(sample);
+    executeScan(sample);
+  };
+
+  const isPhishing =
+    verdict?.prediction?.toLowerCase() === 'phishing' ||
+    verdict?.label === 1 ||
+    verdict?.verdict === 'DANGEROUS';
 
   return (
     <section id="scanner" className="relative z-10 pt-28 pb-16 px-4 max-w-4xl mx-auto text-center">
@@ -89,18 +93,47 @@ export const HeroSection = () => {
       </h1>
 
       {/* 2. Subtitle */}
-      <p className="font-ui text-[#06B6D4] text-sm sm:text-[15px] max-w-2xl mx-auto mb-10 leading-relaxed">
-        Inspect suspicious URLs with a 16-feature machine-learning classifier. See the signals behind its prediction, then assess website security separately.
+      <p className="font-ui text-[#06B6D4] text-sm sm:text-[15px] max-w-2xl mx-auto mb-6 leading-relaxed">
+        Inspect suspicious URLs with a 16-feature machine-learning classifier, cryptographic SSL/TLS verification, and HTTP security header audits.
       </p>
 
+      {/* Scan Mode Switcher */}
+      <div className="flex items-center justify-center gap-2 mb-8">
+        <button
+          type="button"
+          onClick={() => setScanMode('full')}
+          className={`px-3.5 py-1.5 rounded-lg text-xs font-mono font-semibold transition-all flex items-center gap-1.5 border ${
+            scanMode === 'full'
+              ? 'bg-[#06B6D4]/20 text-[#06B6D4] border-[#06B6D4] shadow-[0_0_12px_rgba(6,182,212,0.25)]'
+              : 'bg-[#0C1A2E]/60 text-[#94A3B8] border-[#1E3357] hover:text-[#F8FAFC]'
+          }`}
+        >
+          <Shield className="w-3.5 h-3.5" />
+          <span>Full Digital Trust Scan (ML + SSL + Headers)</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setScanMode('quick')}
+          className={`px-3.5 py-1.5 rounded-lg text-xs font-mono font-semibold transition-all flex items-center gap-1.5 border ${
+            scanMode === 'quick'
+              ? 'bg-[#06B6D4]/20 text-[#06B6D4] border-[#06B6D4] shadow-[0_0_12px_rgba(6,182,212,0.25)]'
+              : 'bg-[#0C1A2E]/60 text-[#94A3B8] border-[#1E3357] hover:text-[#F8FAFC]'
+          }`}
+        >
+          <Cpu className="w-3.5 h-3.5" />
+          <span>Quick ML Only</span>
+        </button>
+      </div>
+
       {/* 3. Target URL CurvedInput Command Box */}
-      <div className="text-left max-w-2xl mx-auto mb-10">
+      <div className="text-left max-w-2xl mx-auto mb-4">
         <CurvedInput
           topLabel="Target URL"
-          bottomLeftText="Enter a complete URL to request a model prediction."
+          bottomLeftText="Enter a complete URL to request live analysis."
           bottomRightText="[Enter] to scan"
           placeholder="https://example.com/login"
-          buttonText={loading ? "Scanning…" : "Scan target URL"}
+          buttonText={loading ? "Analyzing…" : (scanMode === 'full' ? "Full Trust Scan" : "Scan ML Threat")}
           theme="dark"
           bend={-15}
           height={52}
@@ -130,8 +163,97 @@ export const HeroSection = () => {
         />
       </div>
 
-      {/* 4. Live Inference Result Card (Rendered on Scan) */}
-      {verdict && (
+      {/* Quick-Test Interactive Sample Pills */}
+      <div className="flex flex-wrap items-center justify-between text-xs font-mono max-w-2xl mx-auto mb-8 px-2 gap-2 text-[#8E9EB5]">
+        <div className="flex items-center gap-2">
+          <span className="font-medium text-[#8E9EB5]/80">Quick Test:</span>
+          
+          <StarBorder
+            as="button"
+            type="button"
+            onClick={() => handleSampleClick(sampleLegit)}
+            disabled={loading}
+            color="#00E676"
+            trailColor="#00E676"
+            duration={5}
+            stars={2}
+            trailLength={0.3}
+            thickness={1.5}
+            radius={6}
+            glow={0.5}
+            theme="dark"
+            backgroundColor="#0C1A2E"
+            textColor="#00E676"
+            borderColor="rgba(0, 230, 118, 0.3)"
+            className="flex items-center gap-1.5 !px-2.5 !py-1 text-xs cursor-pointer"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-[#00E676]"></span>
+            <span>Google (Legitimate)</span>
+          </StarBorder>
+
+          <StarBorder
+            as="button"
+            type="button"
+            onClick={() => handleSampleClick(samplePhish)}
+            disabled={loading}
+            color="#FF3B3B"
+            trailColor="#FF3B3B"
+            duration={5}
+            stars={2}
+            trailLength={0.3}
+            thickness={1.5}
+            radius={6}
+            glow={0.5}
+            theme="dark"
+            backgroundColor="#0C1A2E"
+            textColor="#FF3B3B"
+            borderColor="rgba(255, 59, 59, 0.3)"
+            className="flex items-center gap-1.5 !px-2.5 !py-1 text-xs cursor-pointer"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-[#FF3B3B]"></span>
+            <span>Phishing Sample</span>
+          </StarBorder>
+        </div>
+
+        <span className="text-[11px] text-[#8E9EB5]/60">Real FastAPI unified backend</span>
+      </div>
+
+      {/* Loading Spinner Indicator */}
+      {loading && (
+        <div className="max-w-md mx-auto p-6 bg-[#06111C]/90 border border-[#06B6D4]/30 rounded-2xl shadow-xl flex flex-col items-center justify-center gap-3 animate-pulse">
+          <div className="w-8 h-8 border-3 border-[#06B6D4] border-t-transparent rounded-full animate-spin" />
+          <p className="text-xs font-mono text-[#06B6D4] font-semibold">
+            {scanMode === 'full'
+              ? 'Executing Full Scan: ML Inference + SSL/TLS Inspection + Headers Audit…'
+              : 'Extracting 16 Lexical Features & Running XGBoost Model…'}
+          </p>
+        </div>
+      )}
+
+      {/* Error Message */}
+      {errorMsg && (
+        <div className="max-w-2xl mx-auto bg-amber-950/30 border border-amber-900/60 rounded-xl p-4 text-xs text-amber-200/90 font-mono mb-8 text-left flex items-start gap-3 shadow-lg">
+          <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <span className="font-bold text-amber-300">Scanner Notice</span>
+            <p className="leading-relaxed">{errorMsg}</p>
+          </div>
+        </div>
+      )}
+
+      {/* 4A. Full Digital Trust Results Card (Comprehensive) */}
+      {verdict && verdict.trust_score !== undefined && (
+        <FullScanResults
+          scanData={verdict}
+          onScanAgain={() => {
+            setVerdict(null);
+            setTargetUrl('');
+          }}
+        />
+      )}
+
+      {/* 4B. Quick ML-Only Inference Result Card */}
+      {verdict && verdict.trust_score === undefined && (
         <SpotlightCard
           theme="dark"
           shape="beam"
@@ -140,11 +262,6 @@ export const HeroSection = () => {
           spotlightSize={350}
           softness={0.6}
           borderGlow={0.6}
-          proximity={120}
-          smoothing={0.4}
-          grain={0.15}
-          ambient={true}
-          flare={true}
           className="max-w-2xl mx-auto mb-10 text-left transition-all duration-300"
           style={{
             backgroundColor: 'rgba(6, 32, 44, 0.40)',
@@ -174,7 +291,7 @@ export const HeroSection = () => {
             </div>
 
             <span className="text-xs font-mono text-[#06B6D4]">
-              Confidence: <strong className="text-[#F8FAFC]">{Math.round((verdict.confidence || 0.9998) * 100)}%</strong>
+              Confidence: <strong className="text-[#F8FAFC]">{Math.round((verdict.confidence || verdict.confidence_score || 0.99) * 100)}%</strong>
             </span>
           </div>
 
@@ -194,14 +311,6 @@ export const HeroSection = () => {
             </span>
           </div>
         </SpotlightCard>
-      )}
-
-      {/* Error Message */}
-      {errorMsg && (
-        <div className="max-w-2xl mx-auto bg-amber-950/20 border border-amber-900/40 rounded-lg p-3.5 text-xs text-amber-200/90 font-mono mb-10 text-left flex items-start gap-2.5">
-          <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-          <span>{errorMsg}</span>
-        </div>
       )}
 
     </section>

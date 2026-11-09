@@ -11,3 +11,4 @@ __all__ = [
     "audit_security_headers",
     "RECOMMENDED_HEADERS"
 ]
+

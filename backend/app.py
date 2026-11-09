@@ -85,6 +85,7 @@ class URLPredictionResponse(BaseModel):
     risk_level: str
     threat_indicators: List[str]
     features: dict
+    shap_explanation: Optional[List[Dict[str, Any]]] = None
     response_time_ms: float
 
 
@@ -107,6 +108,7 @@ class FullScanResponse(BaseModel):
     ssl_certificate: Dict[str, Any]
     security_headers: Dict[str, Any]
     score_breakdown: Dict[str, Any]
+    shap_explanation: Optional[List[Dict[str, Any]]] = None
     key_findings: List[str]
     scan_time_ms: float
 
@@ -168,6 +170,7 @@ def predict_single_url(payload: URLPredictionRequest):
         risk_level=res["risk_level"],
         threat_indicators=res["detected_risk_factors"],
         features=res["extracted_features"],
+        shap_explanation=res.get("shap_explanation", []),
         response_time_ms=elapsed_ms
     )
 
@@ -209,6 +212,7 @@ def predict_batch_urls(payload: BatchURLPredictionRequest):
                     risk_level=res["risk_level"],
                     threat_indicators=res["detected_risk_factors"],
                     features=res["extracted_features"],
+                    shap_explanation=res.get("shap_explanation", []),
                     response_time_ms=elapsed_ms
                 )
             )
@@ -308,6 +312,7 @@ def full_digital_trust_scan(payload: URLPredictionRequest):
         ssl_certificate=ssl_res,
         security_headers=headers_res,
         score_breakdown=trust_assessment["score_breakdown"],
+        shap_explanation=ml_res.get("shap_explanation", []),
         key_findings=trust_assessment["key_findings"],
         scan_time_ms=elapsed_ms
     )

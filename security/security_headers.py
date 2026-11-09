@@ -5,9 +5,24 @@ evaluates defense misconfigurations (HSTS, CSP, X-Frame-Options), and identifies
 """
 
 import socket
+import ipaddress
 import requests
 from urllib.parse import urlparse
 from typing import Dict, Any, List
+
+BLOCKED_HOSTNAMES = {
+    "localhost",
+    "metadata.google.internal",
+    "instance-data",
+    "169.254.169.254"
+}
+
+def is_ip_safe_for_connection(ip_str: str) -> bool:
+    try:
+        ip = ipaddress.ip_address(ip_str)
+        return not (ip.is_loopback or ip.is_private or ip.is_link_local or ip.is_multicast or ip.is_reserved)
+    except ValueError:
+        return False
 
 RECOMMENDED_HEADERS = {
     "Strict-Transport-Security": {
@@ -63,6 +78,46 @@ def audit_security_headers(target_url: str, timeout_seconds: float = 4.0) -> Dic
     info_leakages = []
     total_score = 0
     max_possible_score = sum(h["points"] for h in RECOMMENDED_HEADERS.values())  # 20 pts
+
+    # SSRF Protection
+    parsed = urlparse(url)
+    hostname = parsed.hostname or ""
+    if not hostname or hostname.lower() in BLOCKED_HOSTNAMES:
+        return {
+            "status": "BLOCKED",
+            "error_message": f"Connection blocked by SSRF defense: restricted host '{hostname}'",
+            "security_header_score": 0,
+            "max_score": max_possible_score,
+            "present_headers": [],
+            "missing_headers": list(RECOMMENDED_HEADERS.keys()),
+            "information_leakages": [],
+            "recommendations": ["Internal and loopback hosts cannot be audited."]
+        }
+
+    try:
+        resolved_ip = socket.gethostbyname(hostname)
+        if not is_ip_safe_for_connection(resolved_ip):
+            return {
+                "status": "BLOCKED",
+                "error_message": f"Connection blocked by SSRF defense: destination resolves to private IP ({resolved_ip})",
+                "security_header_score": 0,
+                "max_score": max_possible_score,
+                "present_headers": [],
+                "missing_headers": list(RECOMMENDED_HEADERS.keys()),
+                "information_leakages": [],
+                "recommendations": ["Private and internal network destinations are blocked."]
+            }
+    except Exception as e:
+        return {
+            "status": "UNREACHABLE",
+            "error_message": f"DNS resolution failed for '{hostname}': {str(e)}",
+            "security_header_score": 0,
+            "max_score": max_possible_score,
+            "present_headers": [],
+            "missing_headers": list(RECOMMENDED_HEADERS.keys()),
+            "information_leakages": [],
+            "recommendations": ["Ensure the hostname exists and is publicly accessible via DNS."]
+        }
 
     try:
         req_headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) ThreatTrustBot/1.0"}
@@ -124,3 +179,4 @@ def audit_security_headers(target_url: str, timeout_seconds: float = 4.0) -> Dic
             "information_leakages": [],
             "recommendations": ["Ensure website is publicly reachable on standard HTTP/HTTPS ports."]
         }
+
