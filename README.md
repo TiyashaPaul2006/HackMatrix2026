@@ -55,9 +55,8 @@ These are dataset evaluation results, not a guarantee of real-world detection pe
 
 ## 4. Demo Links and a Screenshot
 
-- **Live demo:** *Add the deployed application URL when available.*
-- **API documentation (local):** `http://127.0.0.1:8000/docs`
-- **API health check (local):** `http://127.0.0.1:8000/`
+**Live demo:** *https://phishguardai-vert.vercel.app/*
+
 
 ### Screenshot
 
