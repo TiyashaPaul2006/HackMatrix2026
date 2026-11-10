@@ -1,4 +1,4 @@
-# AI-Powered Web Threat Detection & Digital Trust Intelligence
+## 1. PhishGuard AI
 
 > An explainable cybersecurity platform that classifies potentially phishing URLs using machine learning and is designed to combine URL threat detection with website security and digital-trust assessments.
 
