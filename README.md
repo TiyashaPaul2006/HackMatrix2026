@@ -51,8 +51,8 @@ For independent PhiUSIIL evaluation: **ROC-AUC 0.9980**, **PR-AUC 0.9986**, and 
 
 ## 4. Live Demo & Screenshots
 
-- **Project Link** [https://phishguardai-vert.vercel.app/](https://phishguardai-vert.vercel.app/)
-- **Live Demo Video** https://drive.google.com/file/d/1nzhkWNr_tWon8pSGAi6t-NJ1XpVr8Fm7/view?usp=drivesdk
+- **Project Link:** [https://phishguardai-vert.vercel.app/](https://phishguardai-vert.vercel.app/)
+- **Live Demo Video:** https://drive.google.com/file/d/1nzhkWNr_tWon8pSGAi6t-NJ1XpVr8Fm7/view?usp=drivesdk
 - **API backend:** [https://hackmatrix2026.onrender.com](https://hackmatrix2026.onrender.com)
 - **API documentation (Swagger):** [https://hackmatrix2026.onrender.com/docs](https://hackmatrix2026.onrender.com/docs)
 - **GitHub repository:** [https://github.com/TiyashaPaul2006/HackMatrix2026](https://github.com/TiyashaPaul2006/HackMatrix2026)
